@@ -18,3 +18,35 @@ def crear_tarea(request):
             'titulo': devolver.titulo,
             'fecha_creacion': devolver.fecha_creacion,
         }, status=201)
+
+@csrf_exempt
+@require_http_methods(['GET'])
+def listar_tareas(request):
+    if request.method == 'GET':
+        tareas = Tarea.objects.all()
+        return JsonResponse({
+            'tareas': list(tareas.values()),
+        }, status=200)
+
+@csrf_exempt
+@require_http_methods(['DELETE'])
+def eliminar_tarea(request, id):
+    if request.method == 'DELETE':
+        tarea = Tarea.objects.get(id=id)
+        tarea.delete()
+        return JsonResponse({
+            'mensaje': 'Tarea eliminada correctamente',
+        }, status=200)
+
+@csrf_exempt
+@require_http_methods(['PUT'])
+def actualizar_tarea(request, id):
+    if request.method == 'PUT':
+        payload = json.loads(request.body)
+        tituloIngresado = payload.get('titulo')
+        tarea = Tarea.objects.get(id=id)
+        tarea.titulo = tituloIngresado
+        tarea.save()
+        return JsonResponse({
+            'mensaje': 'Tarea actualizada correctamente',
+        }, status=200)
